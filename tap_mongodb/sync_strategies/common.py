@@ -34,15 +34,10 @@ def calculate_destination_stream_name(stream: Dict) -> str:
     """
     s_md = metadata.to_map(stream['metadata'])
 
-    # "-" in names breaks pipelinewise logic of schema parsing in ppw targets (ex target-bigquery)
-    stream_name = stream['stream'].replace('-', '_')
-
     if INCLUDE_SCHEMAS_IN_DESTINATION_STREAM_NAME:
-        database_name = s_md.get((), {}).get('database-name').replace('-', '_')
+        return f"{s_md.get((), {}).get('database-name')}-{stream['stream']}"
 
-        return f"{database_name}-{stream_name}"
-
-    return stream_name
+    return stream['stream']
 
 
 def get_stream_version(tap_stream_id: str, state: Dict) -> int:

@@ -153,8 +153,10 @@ def produce_collection_schema(collection: Collection) -> Dict:
     Returns: collection catalog
 
     """
-    collection_name = collection.name
-    collection_db_name = collection.database.name
+
+    # "-" in names breaks pipelinewise logic of schema parsing in ppw targets (ex target-bigquery)
+    collection_name = collection.name.replace("-", "_")
+    collection_db_name = collection.database.name.replace("-", "_")
 
     is_view = collection.options().get('viewOn') is not None
 
