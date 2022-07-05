@@ -155,14 +155,15 @@ def produce_collection_schema(collection: Collection) -> Dict:
     """
 
     # "-" in names breaks pipelinewise logic of schema parsing in ppw targets (ex target-bigquery)
-    collection_name = collection.name.replace("-", "_")
-    collection_db_name = collection.database.name.replace("-", "_")
+    collection_name_id_safe = collection.name.replace("-", "_")
+
+    collection_db_name_id_safe = collection.database.name.replace("-", "_")
 
     is_view = collection.options().get('viewOn') is not None
 
     mdata = {}
     mdata = metadata.write(mdata, (), 'table-key-properties', ['_id'])
-    mdata = metadata.write(mdata, (), 'database-name', collection_db_name)
+    mdata = metadata.write(mdata, (), 'database-name', collection.database.name)
     mdata = metadata.write(mdata, (), 'row-count', collection.estimated_document_count())
     mdata = metadata.write(mdata, (), 'is-view', is_view)
 
@@ -184,10 +185,10 @@ def produce_collection_schema(collection: Collection) -> Dict:
             mdata = metadata.write(mdata, (), 'valid-replication-keys', valid_replication_keys)
 
     return {
-        'table_name': collection_name,
-        'stream': collection_name,
+        'table_name': collection.name,
+        'stream': collection.name,
         'metadata': metadata.to_list(mdata),
-        'tap_stream_id': f"{collection_db_name}-{collection_name}",
+        'tap_stream_id': f"{collection_db_name_id_safe}-{collection_name_id_safe}",
         'schema': {
             'type': 'object',
             'properties': {
