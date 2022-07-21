@@ -141,7 +141,7 @@ def sync_database(database: Database,
 
                 break
 
-            tap_stream_id = f'{change["ns"]["db"]}-{change["ns"]["coll"]}'
+            tap_stream_id = f'{change["ns"]["db"].replace("-", "_")}-{change["ns"]["coll"].replace("-", "_")}'
 
             operation = change['operationType']
 
