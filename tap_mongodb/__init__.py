@@ -267,6 +267,9 @@ def get_connection_string(config: Dict):
     if config.get('replica_set'):
         connection_query['replicaSet'] = config['replica_set']
 
+    if config.get('read_preference'):
+        connection_query['readPreference'] = config['read_preference']
+
     if use_ssl:
         connection_query['tls'] = 'true'
 
