@@ -97,10 +97,11 @@ def sync_collection(collection: Collection,
     LOGGER.info('Querying %s with: %s', stream['tap_stream_id'], dict(find=find_filter))
 
     with collection.find(
-                        find_filter,
-                        sort=[(replication_key_name, pymongo.ASCENDING)],
-                        allow_disk_use=True
-                        ) as cursor:
+        find_filter,
+        sort=[(replication_key_name, pymongo.ASCENDING)],
+        allow_disk_use=True,
+        no_cursor_timeout=True,
+    ) as cursor:
         rows_saved = 0
         start_time = time.time()
 
@@ -120,6 +121,8 @@ def sync_collection(collection: Collection,
 
         common.COUNTS[stream['tap_stream_id']] += rows_saved
         common.TIMES[stream['tap_stream_id']] += time.time() - start_time
+
+    cursor.close()
 
     singer.write_message(activate_version_message)
 

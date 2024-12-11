@@ -97,8 +97,11 @@ def sync_collection(collection: Collection, stream: Dict, state: Dict) -> None:
 
     LOGGER.info('Querying %s with: %s', stream['tap_stream_id'], dict(find=find_filter))
 
-    with collection.find({'_id': find_filter},
-                         sort=[("_id", pymongo.ASCENDING)]) as cursor:
+    with collection.find(
+        {'_id': find_filter},
+        sort=[("_id", pymongo.ASCENDING)],
+        no_cursor_timeout=True,
+    ) as cursor:
         rows_saved = 0
         start_time = time.time()
 
@@ -125,6 +128,8 @@ def sync_collection(collection: Collection, stream: Dict, state: Dict) -> None:
 
         common.COUNTS[stream['tap_stream_id']] += rows_saved
         common.TIMES[stream['tap_stream_id']] += time.time() - start_time
+
+    cursor.close()
 
     # clear max pk value and last pk fetched upon successful sync
     singer.clear_bookmark(state, stream['tap_stream_id'], 'max_id_value')
