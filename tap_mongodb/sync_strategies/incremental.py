@@ -43,6 +43,7 @@ def update_bookmark(row: Dict, state: Dict, tap_stream_id: str, replication_key_
 def sync_collection(collection: Collection,
                     stream: Dict,
                     state: Optional[Dict],
+                    projection: Optional[Dict],
                     ) -> None:
     """
     Syncs the stream records incrementally
@@ -98,6 +99,7 @@ def sync_collection(collection: Collection,
 
     with collection.find(
         find_filter,
+        projection=projection.get(stream['tap_stream_id']),
         sort=[(replication_key_name, pymongo.ASCENDING)],
         allow_disk_use=True,
         no_cursor_timeout=True,

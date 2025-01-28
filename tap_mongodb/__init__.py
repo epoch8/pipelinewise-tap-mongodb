@@ -106,7 +106,7 @@ def clear_state_on_replication_change(stream: Dict, state: Dict) -> Dict:
     return state
 
 
-def sync_traditional_stream(client: MongoClient, stream: Dict, state: Dict):
+def sync_traditional_stream(client: MongoClient, stream: Dict, state: Dict, projection: Optional[Dict]):
     """
     Sync given stream
     Args:
@@ -145,9 +145,9 @@ def sync_traditional_stream(client: MongoClient, stream: Dict, state: Dict):
         collection = client[database_name][stream["table_name"]]
 
         if replication_method == 'FULL_TABLE':
-            full_table.sync_collection(collection, stream, state)
+            full_table.sync_collection(collection, stream, state, projection)
         else:
-            incremental.sync_collection(collection, stream, state)
+            incremental.sync_collection(collection, stream, state, projection)
 
     state = singer.set_currently_syncing(state, None)
 
@@ -155,7 +155,7 @@ def sync_traditional_stream(client: MongoClient, stream: Dict, state: Dict):
 
 
 
-def sync_traditional_streams(client: MongoClient, traditional_streams: List[Dict], state: Dict):
+def sync_traditional_streams(client: MongoClient, traditional_streams: List[Dict], state: Dict, projection: Optional[Dict]):
     """
     Sync traditional streams that use either FULL_TABLE or INCREMENTAL one stream at a time.
     Args:
@@ -164,7 +164,7 @@ def sync_traditional_streams(client: MongoClient, traditional_streams: List[Dict
         state: state dictionary
     """
     for stream in traditional_streams:
-        sync_traditional_stream(client, stream, state)
+        sync_traditional_stream(client, stream, state, projection)
 
 
 def sync_log_based_streams(client: MongoClient,
@@ -229,7 +229,7 @@ def do_sync(client: MongoClient, catalog: Dict, config: Dict, state: Dict):
     log_based_streams, traditional_streams = filter_streams_by_replication_method(streams_to_sync)
 
     LOGGER.debug('Starting sync of traditional streams ...')
-    sync_traditional_streams(client, traditional_streams, state)
+    sync_traditional_streams(client, traditional_streams, state, projection=config.get("projection", {}))
     LOGGER.debug('Sync of traditional streams done')
 
     LOGGER.debug('Starting sync of log based streams ...')

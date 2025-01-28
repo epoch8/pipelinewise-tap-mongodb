@@ -30,7 +30,7 @@ def get_max_id_value(collection: Collection) -> Optional[str]:
     return None
 
 
-def sync_collection(collection: Collection, stream: Dict, state: Dict) -> None:
+def sync_collection(collection: Collection, stream: Dict, state: Dict, projection: Optional[Dict]) -> None:
     """
     Sync collection records incrementally
     Args:
@@ -99,6 +99,7 @@ def sync_collection(collection: Collection, stream: Dict, state: Dict) -> None:
 
     with collection.find(
         {'_id': find_filter},
+        projection=projection.get(stream['tap_stream_id']),
         sort=[("_id", pymongo.ASCENDING)],
         no_cursor_timeout=True,
     ) as cursor:
