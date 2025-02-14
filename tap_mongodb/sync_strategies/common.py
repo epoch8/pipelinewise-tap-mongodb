@@ -215,6 +215,12 @@ def row_to_singer_record(stream: Dict,
         SDC_DELETED_AT: utils.strftime(time_deleted) if time_deleted else None
     }
 
+    replication_key_name = metadata.to_map(stream['metadata']).get(()).get('replication-key')
+    replication_key_column = metadata.to_map(stream['metadata']).get(()).get('replication-key-column', False)
+
+    if replication_key_name and replication_key_column:
+        row_to_persist[replication_key_name] = row_to_persist['document'][replication_key_name]
+
     return singer.RecordMessage(
         stream=calculate_destination_stream_name(stream),
         record=row_to_persist,

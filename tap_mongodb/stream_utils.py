@@ -38,9 +38,18 @@ def write_schema_message(stream: Dict):
     Args:
         stream: stream catalog
     """
+
+    schema=stream['schema']
+
+    replication_key_name = metadata.to_map(stream['metadata']).get(()).get('replication-key')
+    replication_key_column = metadata.to_map(stream['metadata']).get(()).get('replication-key-column', False)
+
+    if replication_key_name and replication_key_column:
+        schema['properties'][replication_key_name] = {"type": ["timestamp", "null"]}
+
     write_message(SchemaMessage(
         stream=calculate_destination_stream_name(stream),
-        schema=stream['schema'],
+        schema=schema,
         key_properties=['_id']))
 
 
