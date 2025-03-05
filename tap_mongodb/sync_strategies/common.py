@@ -219,7 +219,7 @@ def row_to_singer_record(stream: Dict,
     replication_key_column = metadata.to_map(stream['metadata']).get(()).get('replication-key-column', False)
 
     if replication_key_name and replication_key_column:
-        row_to_persist[replication_key_name] = row_to_persist['document'][replication_key_name]
+        row_to_persist[replication_key_name] = row_to_persist['document'].get(replication_key_name)
 
     return singer.RecordMessage(
         stream=calculate_destination_stream_name(stream),
