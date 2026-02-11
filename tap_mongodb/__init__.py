@@ -258,6 +258,7 @@ def get_connection_string(config: Dict):
     # Default SSL verify mode to true, give option to disable
     verify_mode = config.get('verify_mode', 'true') == 'true'
     use_ssl = config.get('ssl') == 'true'
+    direct_connection = config.get("direct_connection", "false") == "true"
 
     connection_query = {
         'readPreference': 'secondaryPreferred',
@@ -279,6 +280,9 @@ def get_connection_string(config: Dict):
     # NB: "sslAllowInvalidCertificates" must ONLY be supplied if `SSL` is true.
     if not verify_mode and use_ssl:
         connection_query['tlsAllowInvalidCertificates'] = 'true'
+
+    if direct_connection:
+        connection_query["directConnection"] = "true"
 
     query_string = parse.urlencode(connection_query)
 
