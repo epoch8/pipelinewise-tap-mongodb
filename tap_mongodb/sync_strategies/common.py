@@ -177,6 +177,9 @@ def transform_value(value: Any, path) -> Any:
     if isinstance(value, tuple(conversion.keys())):
         return conversion[type(value)](value, path)
 
+    if isinstance(value, str):
+        return value.replace("\u0000", "")
+
     return value
 
 
